@@ -13,6 +13,12 @@ public:
     void set(int r, int c, double value);
     double get(int r, int c) const;
     void print() const;
+    Matrix(const Matrix& other);                // Copy Constructor
+    Matrix& operator=(const Matrix& other);     // Copy Assignment
+    Matrix operator+(const Matrix& other) const; // Matrix Addition
+    Matrix operator*(const Matrix& other) const; // Matrix Multiplication
+    int getRows() const { return rows; }
+    int getCols() const { return cols; }
 };
 
 #endif
