@@ -1,6 +1,9 @@
 #include "../include/matrix.h"
 #include <iostream>
-#include <stdexcept> 
+#include <stdexcept>
+#include <fstream>
+#include <sstream>
+#include <vector> 
 Matrix::Matrix(int r, int c) : rows(r), cols(c) {
     data = new double[rows * cols];
     for (int i = 0; i < rows * cols; ++i) {
@@ -88,5 +91,57 @@ Matrix Matrix::operator*(const Matrix& other) const {
             result.set(i, j, sum);
         }
     }
+    return result;
+}
+Matrix Matrix::from_csv(const std::string& filepath) {
+    std::ifstream file(filepath);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file: " + filepath);
+    }
+
+    std::vector<std::vector<double>> temporary_data;
+    std::string line;
+
+    // Read file line by line
+    while (std::getline(file, line)) {
+        // Skip empty lines
+        if (line.empty()) continue;
+
+        std::vector<double> row_values;
+        std::stringstream ss(line);
+        std::string value_str;
+
+        // Split line by commas
+        while (std::getline(ss, value_str, ',')) {
+            try {
+                row_values.push_back(std::stod(value_str)); // Convert string to double
+            } catch (const std::invalid_argument&) {
+                // If parsing fails (e.g., text headers), skip or handle
+                continue; 
+            }
+        }
+
+        if (!row_values.empty()) {
+            temporary_data.push_back(row_values);
+        }
+    }
+    file.close();
+
+    // Check if we actually read anything
+    if (temporary_data.empty()) {
+        throw std::runtime_error("File is empty or contains no valid numeric data.");
+    }
+
+    int parsed_rows = temporary_data.size();
+    int parsed_cols = temporary_data[0].size();
+
+    // Allocate our optimized Matrix memory block and fill it
+    Matrix result(parsed_rows, parsed_cols);
+    for (int r = 0; r < parsed_rows; ++r) {
+        for (int c = 0; c < parsed_cols; ++c) {
+            result.set(r, c, temporary_data[r][c]);
+        }
+    }
+
     return result;
 }

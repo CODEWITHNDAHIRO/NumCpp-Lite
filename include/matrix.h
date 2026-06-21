@@ -1,6 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
-
+#include <string>
 class Matrix {
 private:
     int rows;
@@ -19,6 +19,8 @@ public:
     Matrix operator*(const Matrix& other) const; // Matrix Multiplication
     int getRows() const { return rows; }
     int getCols() const { return cols; }
+    
+    static Matrix from_csv(const std::string& filepath);
 };
 
 #endif
